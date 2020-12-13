@@ -1,9 +1,14 @@
 {
   "devDependencies": {
-    "@openzeppelin/contracts": "^3.3.0"
+    "@openzeppelin/contracts": "^3.3.0",
+    "truffle-plugin-verify": "github:rkalis/truffle-plugin-verify#v0.5.3"
   },
   "dependencies": {
+    "@truffle/hdwallet-provider": "^1.2.0",
+    "bignumber.js": "^9.0.1",
+    "dotenv": "^8.2.0",
     "erc-payable-token": "^3.3.1",
-    "eth-token-recover": "^3.3.0"
+    "eth-token-recover": "^3.3.0",
+    "fs": "^0.0.1-security"
   }
 }

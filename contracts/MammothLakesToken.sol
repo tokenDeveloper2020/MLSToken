@@ -3,7 +3,7 @@
 pragma solidity ^0.7.0;
 
 import "./basecontracts/ERC20Base.sol";
-//import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title MammothLakesToken
@@ -24,7 +24,7 @@ import "./basecontracts/ERC20Base.sol";
 
 contract MammothLakesToken is ERC20Base {
     using SafeMath for uint256;
-    //using Strings for uint256;
+    using Strings for uint256;
 
     string _name_MLS = "Mammoth Lakes";
     string _symbol_MLS = "MLS";
@@ -35,15 +35,14 @@ contract MammothLakesToken is ERC20Base {
     uint256 _maxTokenHoldLimit;
     uint256 _minTokenTransferRequired;
 
-    address _vault;
+    address _vault = address(0);
 
     constructor(
         uint256 cap_MLS_,
         uint256 initialSupply_MLS_,
         bool isTransferEnabled_,
         uint256 maxTokenHoldLimit_,
-        uint256 minTokenTransferRequired_,
-        address vault_
+        uint256 minTokenTransferRequired_
     )
         ERC20Base(
             _name_MLS,
@@ -56,13 +55,21 @@ contract MammothLakesToken is ERC20Base {
     {
         _maxTokenHoldLimit = maxTokenHoldLimit_;
         _minTokenTransferRequired = minTokenTransferRequired_;
-        _vault = vault_;
+    }
+
+    function setVaultAddress(address vault_) public onlyOwner returns (address)  {
+        _vault =  vault_;
+        return _vault;
     }
 
     function getVaultAddress() public view returns (address) {
         return _vault;
     }
 
+//     function test() public pure returns(uint256){
+//         uint256 a = 5 * 10 ** 18;
+// return a;
+//     }
     function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
         uint256 c = SafeMath.add(a, m);
         uint256 d = SafeMath.sub(c, 1);
@@ -75,11 +82,13 @@ contract MammothLakesToken is ERC20Base {
         return onePercent;
     }
 
+    //event Error(string message);
 
     function transfer(address to, uint256 value)
         public virtual override(ERC20Base) canTransfer(_msgSender())
         returns (bool)
     {
+        require(_vault != address(0), "MammothLakesToken: Vault is not setup yet.");
         require(value >= _minTokenTransferRequired, "MammothLakesToken: Tokens to transfer should be more than minimum.");
 
         uint256 tokensToBurn = findPercentToBurn(value);
@@ -87,6 +96,7 @@ contract MammothLakesToken is ERC20Base {
         
         uint256 _existingContribution = balanceOf(to);
         uint256 _newContribution = _existingContribution.add(tokensToTransfer);
+       // emit Error(Strings.toString(_newContribution));
         require(_newContribution <= _maxTokenHoldLimit, "MammothLakesToken: Tokens transferred exceeds Max Hold limit of recipient.");
 
 
